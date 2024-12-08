@@ -92,23 +92,6 @@ jobs:
             contrib/integrations/aws-sam-cli
             setup-test-env.sh
 
-      - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Get AWS SAM CLI version
-        run: |
-          version=$(cat contrib/integrations/aws-sam-cli/version.txt | grep aws-sam-cli)
-          version=${version/aws-sam-cli==/}
-          echo "AWS_SAM_CLI_VERSION=v${version}" >> $GITHUB_ENV
-
-      - name: Checkout AWS SAM CLI repo
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
-        with:
-          repository: aws/aws-sam-cli
-          ref: ${{ env.AWS_SAM_CLI_VERSION }}
-          fetch-tags: true
-
       - name: Install runtime dependencies
         run: ./setup-test-env.sh
 
@@ -127,6 +110,23 @@ jobs:
 
       - name: Start finch-daemon
         run: sudo bin/finch-daemon  --debug --socket-owner $UID &
+
+      - name: Get AWS SAM CLI version
+        run: |
+          version=$(cat contrib/integrations/aws-sam-cli/version.txt | grep aws-sam-cli)
+          version=${version/aws-sam-cli==/}
+          echo "AWS_SAM_CLI_VERSION=v${version}" >> $GITHUB_ENV
+
+      - name: Checkout AWS SAM CLI repo
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+        with:
+          repository: aws/aws-sam-cli
+          ref: ${{ env.AWS_SAM_CLI_VERSION }}
+          fetch-tags: true
+
+      - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Upgrade pip in environment
         run: |
