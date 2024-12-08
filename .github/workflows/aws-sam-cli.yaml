@@ -140,4 +140,4 @@ jobs:
         run: |
           export DOCKER_HOST=${{ env.SOCKET_PATH }}
           export DOCKER_API_VERSION=${{ env.API_VERSION }}
-          pytest -vv --show-capture=no -rs tests/integration/${{ matrix.integ_test }}
+          pytest -vv -rs --log-cli-level=CRITICAL tests/integration/${{ matrix.integ_test }}
