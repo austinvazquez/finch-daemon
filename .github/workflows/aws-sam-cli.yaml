@@ -36,6 +36,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    timeout-minutes: 90
 
     steps:
       - name: Checkout finch-daemon repo
@@ -51,11 +52,14 @@ jobs:
       - name: Build the daemon
         run: make build
 
-      - name: Archive finch daemon
+      - name: Create build artifacts
+        run: tar -cvf build-artifacts.tar bin/
+
+      - name: Upload build artifacts
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
-          name: ${{ github.event_name }}-${{ github.run_id }}
-          path: 'bin/finch-daemon'
+          name: build-artifacts
+          path: build-artifacts.tar
 
   integration-tests:
     name: Test (${{ matrix.integ_test }})
@@ -107,10 +111,18 @@ jobs:
           ref: ${{ env.AWS_SAM_CLI_VERSION }}
           fetch-tags: true
 
-      - name: Download finch-daemon
+      - name: Download build artifacts
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.1.8
         with:
-          name: ${{ github.event_name }}-${{ github.run_id }}
+          name: build-artifacts
+
+      - name: Extract build artifacts
+        run: tar -xvf build-artifacts.tar
+
+      - name: Remove default podman network config
+        run: |
+          sudo ls /etc/cni/net.d
+          sudo rm /etc/cni/net.d/87-podman-bridge.conflist
 
       - name: Start finch-daemon
         run: sudo bin/finch-daemon  --debug --socket-owner $UID &
