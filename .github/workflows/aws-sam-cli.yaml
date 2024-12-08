@@ -80,6 +80,8 @@ jobs:
       SOCKET_PATH: 'unix:///run/finch.sock'
       API_VERSION: 'v1.41'
       AWS_DEFAULT_REGION: 'us-east-1'
+      CI: true
+      BY_CANARY: true
 
     steps:
       - name: Checkout finch-daemon repo
